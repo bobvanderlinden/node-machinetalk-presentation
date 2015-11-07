@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Presentation</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+        <style>
+@import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+@import url(https://fonts.googleapis.com/css?family=Open+Sans);
+@import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+@import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+body {
+    font-family: 'Open Sans';
+}
+h1, h2, h3 {
+    font-family: 'Yanone Kaffeesatz';
+    font-weight: normal;
+}
+.remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+
+.remark-slide-content {
+    font-size: 25pt;
+    line-height: 40pt;
+}
+
+code {
+    line-height: 30pt;
+}
+
+.remark-slide-content {
+    background-color: #fafafa;
+    position: relative;
+}
+
+.checklist li {
+    list-style-type: none;
+    margin:0 0px 0 -35px;
+}
+
+.remark-slide-content .middle {
+    margin-top: 4em;
+}
+
+a {
+    font-size: 15pt;
+}
+
+
+.footnote {
+    position: absolute;
+    bottom: 1em;
+    right: 1em;
+    font-size: 15pt;
+    text-align: right;
+    vertical-align: top
+}
+
+.remark-slide-number {
+    display: none;
+}
+
+#statusjson {
+    overflow: scroll;
+    position: absolute;
+    left: 0; bottom: 0;
+    right: 0; top: 20%;
+}
+
+#statusjson a {
+    color: black;
+    text-decoration: none;
+}
+
+.block.right, .right {
+    position: absolute;
+    left: 55%;
+    margin-top: -1.5em;
+    text-align: left;
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+        </style>
+    </head>
+    <body>
+        <textarea id="source">
+class: center, middle
+# node-machinetalk
+
+A library
+to use Machinetalk
+on Node.js
+
+https://github.com/bobvanderlinden/node-machinetalk
+
+.footnote[
+    by Bob van der Linden
+]
+---
+# Overview
+
+* Motivation
+* What is node-machinetalk
+* Usage
+* Web-based example interface
+* Demo
+* Questions
+---
+# About me
+
+--
+
+* Introduced to 3D printing a year ago
+--
+
+* Working part-time with tiny 3D print company
+--
+
+* Web development
+--
+
+* Android development
+--
+
+* OSS projects in off-hours
+---
+# Motivation
+
+--
+* Controlling Machinekit from a browser
+
+--
+  * Zero-install client
+
+--
+  * Cross-platform
+
+--
+  * Single point for upgrades
+
+--
+* Integration into existing applications
+
+--
+* Easy to run on non-Machinekit systems
+
+---
+# Why Node.js
+
+* Javascript: familiar for a lot of developers
+* Ecosystem: a lot of packages
+* Focus on web
+* Simple runtime
+
+---
+# What is node-machinetalk
+
+* Discovering
+
+* Monitoring
+
+* Controlling
+
+Machinekit instances on a network
+---
+class: checklist
+# What is node-machinetalk
+
+--
+* .fa.fa-check-square-o[] Discovery .right[MachinetalkBrowser]
+
+--
+* .fa.fa-check-square-o[] status .right[StatusClient]
+
+--
+* .fa.fa-check-square-o[] error .right[ErrorClient]
+
+--
+* .fa.fa-check-square-o[] preview .right[PreviewClient]
+
+--
+* .fa.fa-check-square-o[] command .right[TaskCommandClient]
+
+--
+* .fa.fa-square-o[] file (FTP)
+* .fa.fa-square-o[] Remote HAL
+* .fa.fa-square-o[] Tying it all together .right[MachineClient]
+
+---
+# Dependencies
+
+--
+* Discovery
+  * node-mdns
+  * Avahi/Bonjour
+
+--
+* Communication
+  * node-zmq
+
+--
+* Protobuf encoding
+  * machinekit-protobuf-node
+  * ProtoBuf.js
+
+
+
+.footnote[https://github.com/bobvanderlinden/machinekit-protobuf-node]
+
+---
+# Usage
+
+--
+Initialize your project
+```sh
+npm init
+```
+
+--
+Install node-machinetalk
+```sh
+npm install machinetalk
+```
+
+--
+
+.footnote[https://github.com/bobvanderlinden/node-machinetalk#examples]
+
+---
+# Usage (discovery)
+```js
+var machinetalk = require('machinetalk');
+var machinetalkbrowser = new machinetalk.MachineTalkBrowser();
+machinetalkbrowser.start();
+machinetalkbrowser.on('serviceUp', function(service) {
+  switch (service.name) {
+    case 'status':
+        /* initializeStatusClient(service.dsn); */
+        break;
+  }
+});
+```
+---
+# Usage (status)
+```js
+statusclient = new machinetalk.StatusClient(dsn);
+
+statusclient.connect();
+
+statusclient.subscribe('task');
+statusclient.subscribe('motion');
+statusclient.subscribe('io');
+statusclient.subscribe('interp');
+statusclient.subscribe('config');
+
+statusclient.on('statuschanged', function(status) {
+  console.log(status);
+});
+```
+---
+# Usage (status object)
+<div id="statusjson"></div>
+---
+class: middle center
+# node-machinetalk-example*
+
+A web interface for Machinekit
+
+https://github.com/bobvanderlinden/node-machinetalk-example
+
+.footnote[*name will hopefully change]
+---
+class: middle center
+# DEMO
+---
+# Web interface
+
+--
+* Prototype!
+--
+
+* Webserver
+  * Based on .nowrap[node-machinetalk]
+  * Communication using Socket.io
+  * Cross-platform
+  * Allows remote usage
+--
+
+* Web interface
+  * Cross-browser
+  * Build in components
+---
+# Thanks!
+* Michael Habeler
+* Alexander Rössler
+* Bas de Bruijn
+* All contributors
+---
+class: center middle
+# Questions?
+        </textarea>
+    </body>
+    <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
+    </script>
+    <script>
+        var slideshow = remark.create();
+    </script>
+    <script src="http://caldwell.github.io/renderjson/renderjson.js"></script>
+    <script>
+    document.getElementById('statusjson').appendChild(
+    renderjson({"io":{"estop":false,"flood":false,"lube":true,"lube_level":false,"mist":false,"pocket_prepped":true,"tool_in_spindle":false,"tool_offset":{"x":0,"y":0,"z":0,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"tool_table":[{"index":0,"id":-1,"xOffset":0,"yOffset":0,"zOffset":0,"aOffset":0,"bOffset":0,"cOffset":0,"uOffset":0,"vOffset":0,"wOffset":0,"diameter":0,"frontangle":0,"backangle":0,"orientation":0},{"index":1,"id":1,"xOffset":0,"yOffset":0,"zOffset":0.511,"aOffset":0,"bOffset":0,"cOffset":0,"uOffset":0,"vOffset":0,"wOffset":0,"diameter":0.125,"frontangle":0,"backangle":0,"orientation":0},{"index":2,"id":2,"xOffset":0,"yOffset":0,"zOffset":0.1,"aOffset":0,"bOffset":0,"cOffset":0,"uOffset":0,"vOffset":0,"wOffset":0,"diameter":0.0625,"frontangle":0,"backangle":0,"orientation":0},{"index":3,"id":3,"xOffset":0,"yOffset":0,"zOffset":1.273,"aOffset":0,"bOffset":0,"cOffset":0,"uOffset":0,"vOffset":0,"wOffset":0,"diameter":0.201,"frontangle":0,"backangle":0,"orientation":0},{"index":4,"id":99999,"xOffset":0,"yOffset":0,"zOffset":0.1,"aOffset":0,"bOffset":0,"cOffset":0,"uOffset":0,"vOffset":0,"wOffset":0,"diameter":0,"frontangle":0,"backangle":0,"orientation":0}]},"task":{"echo_serial_number":18,"exec_state":7,"file":"/home/bob/machinekit/share/axis/images/axis.ngc","input_timeout":false,"optional_stop":true,"read_line":249,"task_mode":2,"task_paused":0,"task_state":4,"total_lines":0},"interp":{"command":"M2","gcodes":[{"index":0,"value":31},{"index":1,"value":0},{"index":2,"value":-1},{"index":3,"value":170},{"index":4,"value":400},{"index":5,"value":210},{"index":6,"value":900},{"index":7,"value":940},{"index":8,"value":540},{"index":9,"value":490},{"index":10,"value":990},{"index":11,"value":640},{"index":12,"value":-1},{"index":13,"value":970},{"index":14,"value":911},{"index":15,"value":80}],"interp_state":4,"interpreter_errcode":0,"mcodes":[{"index":0,"value":31},{"index":1,"value":-1},{"index":2,"value":4},{"index":3,"value":-1},{"index":4,"value":9},{"index":5,"value":-1},{"index":6,"value":48},{"index":7,"value":-1},{"index":8,"value":53},{"index":9,"value":0}],"settings":[{"index":0,"value":31},{"index":1,"value":400},{"index":2,"value":0}]},"motion":{"active_queue":-1,"actual_position":{"x":108.03903300610564,"y":18.513816801937956,"z":3.6027120000000004,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"adaptive_feed_enabled":false,"ain":[{"index":0,"value":0},{"index":1,"value":0},{"index":2,"value":0},{"index":3,"value":0},{"index":4,"value":0},{"index":5,"value":0},{"index":6,"value":0},{"index":7,"value":0},{"index":8,"value":0},{"index":9,"value":0},{"index":10,"value":0},{"index":11,"value":0},{"index":12,"value":0},{"index":13,"value":0},{"index":14,"value":0},{"index":15,"value":0},{"index":16,"value":0},{"index":17,"value":0},{"index":18,"value":0},{"index":19,"value":0},{"index":20,"value":0},{"index":21,"value":0},{"index":22,"value":0},{"index":23,"value":0},{"index":24,"value":0},{"index":25,"value":0},{"index":26,"value":0},{"index":27,"value":0},{"index":28,"value":0},{"index":29,"value":0},{"index":30,"value":0},{"index":31,"value":0},{"index":32,"value":0},{"index":33,"value":0},{"index":34,"value":0},{"index":35,"value":0},{"index":36,"value":0},{"index":37,"value":0},{"index":38,"value":0},{"index":39,"value":0},{"index":40,"value":0},{"index":41,"value":0},{"index":42,"value":0},{"index":43,"value":0},{"index":44,"value":0},{"index":45,"value":0},{"index":46,"value":0},{"index":47,"value":0},{"index":48,"value":0},{"index":49,"value":0},{"index":50,"value":0},{"index":51,"value":0},{"index":52,"value":0},{"index":53,"value":0},{"index":54,"value":0},{"index":55,"value":0},{"index":56,"value":0},{"index":57,"value":0},{"index":58,"value":0},{"index":59,"value":0},{"index":60,"value":0},{"index":61,"value":0},{"index":62,"value":0},{"index":63,"value":0}],"aout":[{"index":0,"value":0},{"index":1,"value":0},{"index":2,"value":0},{"index":3,"value":0},{"index":4,"value":0},{"index":5,"value":0},{"index":6,"value":0},{"index":7,"value":0},{"index":8,"value":0},{"index":9,"value":0},{"index":10,"value":0},{"index":11,"value":0},{"index":12,"value":0},{"index":13,"value":0},{"index":14,"value":0},{"index":15,"value":0},{"index":16,"value":0},{"index":17,"value":0},{"index":18,"value":0},{"index":19,"value":0},{"index":20,"value":0},{"index":21,"value":0},{"index":22,"value":0},{"index":23,"value":0},{"index":24,"value":0},{"index":25,"value":0},{"index":26,"value":0},{"index":27,"value":0},{"index":28,"value":0},{"index":29,"value":0},{"index":30,"value":0},{"index":31,"value":0},{"index":32,"value":0},{"index":33,"value":0},{"index":34,"value":0},{"index":35,"value":0},{"index":36,"value":0},{"index":37,"value":0},{"index":38,"value":0},{"index":39,"value":0},{"index":40,"value":0},{"index":41,"value":0},{"index":42,"value":0},{"index":43,"value":0},{"index":44,"value":0},{"index":45,"value":0},{"index":46,"value":0},{"index":47,"value":0},{"index":48,"value":0},{"index":49,"value":0},{"index":50,"value":0},{"index":51,"value":0},{"index":52,"value":0},{"index":53,"value":0},{"index":54,"value":0},{"index":55,"value":0},{"index":56,"value":0},{"index":57,"value":0},{"index":58,"value":0},{"index":59,"value":0},{"index":60,"value":0},{"index":61,"value":0},{"index":62,"value":0},{"index":63,"value":0}],"axis":[{"index":0,"enabled":true,"fault":false,"ferror_current":0,"ferror_highmark":0,"homed":false,"homing":false,"inpos":true,"input":108.03903300610564,"max_hard_limit":false,"max_soft_limit":false,"min_hard_limit":false,"min_soft_limit":false,"output":107.92636708029193,"override_limits":false,"velocity":-112.66592581371526},{"index":1,"enabled":true,"fault":false,"ferror_current":0,"ferror_highmark":0,"homed":false,"homing":false,"inpos":true,"input":18.513816801937956,"max_hard_limit":false,"max_soft_limit":false,"min_hard_limit":false,"min_soft_limit":false,"output":18.423238548278743,"override_limits":false,"velocity":-90.57825365921346},{"index":2,"enabled":true,"fault":false,"ferror_current":0,"ferror_highmark":0,"homed":false,"homing":false,"inpos":true,"input":3.6027120000000004,"max_hard_limit":false,"max_soft_limit":false,"min_hard_limit":false,"min_soft_limit":false,"output":3.6027120000000004,"override_limits":false,"velocity":0}],"block_delete":true,"current_line":243,"current_vel":138.14601850700936,"delay_left":0,"din":[{"index":0,"value":false},{"index":1,"value":false},{"index":2,"value":false},{"index":3,"value":false},{"index":4,"value":false},{"index":5,"value":false},{"index":6,"value":false},{"index":7,"value":false},{"index":8,"value":false},{"index":9,"value":false},{"index":10,"value":false},{"index":11,"value":false},{"index":12,"value":false},{"index":13,"value":false},{"index":14,"value":false},{"index":15,"value":false},{"index":16,"value":false},{"index":17,"value":false},{"index":18,"value":false},{"index":19,"value":false},{"index":20,"value":false},{"index":21,"value":false},{"index":22,"value":false},{"index":23,"value":false},{"index":24,"value":false},{"index":25,"value":false},{"index":26,"value":false},{"index":27,"value":false},{"index":28,"value":false},{"index":29,"value":false},{"index":30,"value":false},{"index":31,"value":false},{"index":32,"value":false},{"index":33,"value":false},{"index":34,"value":false},{"index":35,"value":false},{"index":36,"value":false},{"index":37,"value":false},{"index":38,"value":false},{"index":39,"value":false},{"index":40,"value":false},{"index":41,"value":false},{"index":42,"value":false},{"index":43,"value":false},{"index":44,"value":false},{"index":45,"value":false},{"index":46,"value":false},{"index":47,"value":false},{"index":48,"value":false},{"index":49,"value":false},{"index":50,"value":false},{"index":51,"value":false},{"index":52,"value":false},{"index":53,"value":false},{"index":54,"value":false},{"index":55,"value":false},{"index":56,"value":false},{"index":57,"value":false},{"index":58,"value":false},{"index":59,"value":false},{"index":60,"value":false},{"index":61,"value":false},{"index":62,"value":false},{"index":63,"value":false}],"distance_to_go":3.718404745008989,"dout":[{"index":0,"value":false},{"index":1,"value":false},{"index":2,"value":false},{"index":3,"value":false},{"index":4,"value":false},{"index":5,"value":false},{"index":6,"value":false},{"index":7,"value":false},{"index":8,"value":false},{"index":9,"value":false},{"index":10,"value":false},{"index":11,"value":false},{"index":12,"value":false},{"index":13,"value":false},{"index":14,"value":false},{"index":15,"value":false},{"index":16,"value":false},{"index":17,"value":false},{"index":18,"value":false},{"index":19,"value":false},{"index":20,"value":false},{"index":21,"value":false},{"index":22,"value":false},{"index":23,"value":false},{"index":24,"value":false},{"index":25,"value":false},{"index":26,"value":false},{"index":27,"value":false},{"index":28,"value":false},{"index":29,"value":false},{"index":30,"value":false},{"index":31,"value":false},{"index":32,"value":false},{"index":33,"value":false},{"index":34,"value":false},{"index":35,"value":false},{"index":36,"value":false},{"index":37,"value":false},{"index":38,"value":false},{"index":39,"value":false},{"index":40,"value":false},{"index":41,"value":false},{"index":42,"value":false},{"index":43,"value":false},{"index":44,"value":false},{"index":45,"value":false},{"index":46,"value":false},{"index":47,"value":false},{"index":48,"value":false},{"index":49,"value":false},{"index":50,"value":false},{"index":51,"value":false},{"index":52,"value":false},{"index":53,"value":false},{"index":54,"value":false},{"index":55,"value":false},{"index":56,"value":false},{"index":57,"value":false},{"index":58,"value":false},{"index":59,"value":false},{"index":60,"value":false},{"index":61,"value":false},{"index":62,"value":false},{"index":63,"value":false}],"dtg":{"x":-2.8979878953311697,"y":-2.329849781899977,"z":-4.440892098500626e-16,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"enabled":true,"feed_hold_enabled":true,"feed_override_enabled":true,"feedrate":1,"g5x_index":1,"g5x_offset":{"x":0,"y":0,"z":0,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"g92_offset":{"x":-17.5,"y":13.896273,"z":0.602712,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"id":26,"inpos":false,"joint_actual_position":{"x":108.03903300610564,"y":18.513816801937956,"z":3.6027120000000004,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"joint_position":{"x":107.92636708029193,"y":18.423238548278743,"z":3.6027120000000004,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"limit":[{"index":0,"value":0},{"index":1,"value":0},{"index":2,"value":0},{"index":3,"value":0},{"index":4,"value":0},{"index":5,"value":0},{"index":6,"value":0},{"index":7,"value":0},{"index":8,"value":0}],"motion_line":26,"motion_type":1,"motion_mode":2,"paused":false,"position":{"x":107.70670189533116,"y":18.246637781899977,"z":3.6027120000000004,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"probe_tripped":false,"probe_val":0,"probed_position":{"x":0,"y":0,"z":0,"a":0,"b":0,"c":0,"u":0,"v":0,"w":0},"probing":false,"queue":288,"queue_full":false,"rotation_xy":0,"spindle_brake":true,"spindle_direction":0,"spindle_enabled":false,"spindle_increasing":0,"spindle_override_enabled":true,"spindle_speed":0,"spindlerate":1,"state":2,"max_velocity":1000,"max_acceleration":5000},"config":{"default_acceleration":5000,"angular_units":1,"axes":3,"axis":[{"index":0,"axisType":1,"backlash":0,"max_ferror":0.05,"max_position_limit":200,"min_ferror":0.01,"min_position_limit":-200,"units":1,"home_sequence":-1,"max_acceleration":2000,"max_velocity":120,"increments":""},{"index":1,"axisType":1,"backlash":0,"max_ferror":0.05,"max_position_limit":200,"min_ferror":0.01,"min_position_limit":-200,"units":1,"home_sequence":-1,"max_acceleration":2000,"max_velocity":120,"increments":""},{"index":2,"axisType":1,"backlash":0,"max_ferror":0.05,"max_position_limit":200,"min_ferror":0.01,"min_position_limit":-200,"units":1,"home_sequence":-1,"max_acceleration":2000,"max_velocity":120,"increments":""}],"axis_mask":7,"cycle_time":0.001,"debug":0,"kinematics_type":1,"linear_units":1,"max_acceleration":5000,"max_velocity":1000,"program_units":2,"default_velocity":0,"program_extension":[],"position_offset":1,"position_feedback":1,"max_feed_override":100,"min_feed_override":0.5,"max_spindle_override":1,"min_spindle_override":0.5,"default_spindle_speed":1,"default_linear_velocity":0.25,"min_velocity":0.01,"max_linear_velocity":1,"min_linear_velocity":0.01,"default_angular_velocity":0.25,"max_angular_velocity":1,"min_angular_velocity":0.01,"increments":"","grids":"","lathe":false,"geometry":"","arcdivision":64,"no_force_homing":true,"remote_path":"/home/bob/machinekit/nc_files","time_units":1,"name":"Machinekit-HAL-SIM-MINI","user_command":[]}})
+    );
+    </script>
+</html>
